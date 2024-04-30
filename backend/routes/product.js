@@ -4,11 +4,17 @@ import { productModel } from '../model/productModel.js';
 
 const router = express.Router();
 
-//get products
+//get products api
 router.get('/products', async(req, res, next)=>{
 
     try {
-        const products = await productModel.find({}) 
+       const query = req.query.keyword?{
+            name : {
+                $regex: req.query.keyword,
+                $options: 'i'
+            }
+        }:{}
+        const products = await productModel.find(query) 
        
             res.status(200).json({
                 success : true,
