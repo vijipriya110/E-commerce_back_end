@@ -1,5 +1,6 @@
 import express from 'express'
 import { orderModel } from '../model/orderModel.js';
+import { productModel } from '../model/productModel.js';
 
 
 const router = express.Router();
@@ -14,6 +15,13 @@ router.post('/orders', async(req, res, next)=>{
         const status = 'pending';
 
         const order = await orderModel.create({cartItems, amount, status })
+
+        //updating stock qty
+        cartItems.forEach(async(item) => {
+            const product = await productModel.findById(item.product._id);
+            product.stock = product.stock - item.qty;
+            await product.save()
+        });
 
         res.status(200).json({
             success : true,
